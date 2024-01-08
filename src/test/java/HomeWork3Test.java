@@ -1,7 +1,7 @@
 import core.BaseTest;
 import org.junit.Test;
-import org.openqa.selenium.By;
 import org.openqa.selenium.ScreenOrientation;
+import page.ArticlePage;
 import page.IntroPage;
 import page.MenuPage;
 import page.SearchPage;
@@ -9,240 +9,137 @@ import page.SearchPage;
 import java.util.List;
 
 public class HomeWork3Test extends BaseTest {
-    private final IntroPage introPage = new IntroPage();
-    private final SearchPage searchPage = new SearchPage();
-    private final MenuPage menuPage = new MenuPage();
 
-//    @Test
+    @Test
     public void testSwitchArticle() {
-        waitForElementByAndClick(
-                introPage.getSkipButton(),
-                "Cannot find button 'Skip'",
-                5
-        );
-        waitForElementByAndClick(
-                searchPage.getSearchInput(),
-                "Cannot find search input'",
-                5
-        );
-        assertElementHasText(
-                searchPage.getSearchInput(),
-                "Search Wikipedia"
-        );
-        waitForElementByAndSendKeys(
-                searchPage.getSearchInput(),
-                "Appium",
-                "Cannot input 'Appium'",
-                5
-        );
-        waitForElementByAndClick(
-                By.xpath("//*[@resource-id='org.wikipedia:id/page_list_item_title'][@text='Appium']"),
-                "Click by article",
-                5
-        );
-        swipeUpToFindElement(
-                By.xpath("//*[contains(@content-desc,'View article in browser')]"),
-                "Не проскролил до футтера",
-                20
-        );
+        IntroPage introPage = new IntroPage(driver);
+        SearchPage searchPage = new SearchPage(driver);
+        ArticlePage articlePage = new ArticlePage(driver);
+
+        String searchText = "Java";
+        String descriptionText = "Island in Indonesia";
+
+        introPage.clickSkipButton();
+
+        searchPage.clickSearchInput();
+        searchPage.assertInputHasText("Search Wikipedia");
+        searchPage.setTextSearchInput(searchText);
+
+        searchPage.waitForElementByTitleAndDescription(searchText, descriptionText);
+//        searchPage.clickByTitleInSearch(searchText);
+
+//        articlePage.swipeToFooter();
     }
 
 
     @Test
-    public void articleSaveToMyList() {
+    public void testArticleSaveToMyList() {
+        IntroPage introPage = new IntroPage(driver);
+        SearchPage searchPage = new SearchPage(driver);
+        ArticlePage articlePage = new ArticlePage(driver);
+        MenuPage menuPage = new MenuPage(driver);
+
         driver.rotate(ScreenOrientation.PORTRAIT);
 
         List<String> titles = List.of("Java", "Appium");
         String titleName = "My favorite articles";
-        String listPageName = String.format("//*[@resource-id='org.wikipedia:id/item_title'][@text='%s']", titleName);
-        waitForElementByAndClick(
-                introPage.getSkipButton(),
-                "Cannot find button 'Skip'",
-                5
-        );
 
-        addTitleToList(titles, titleName);
+        introPage.clickSkipButton();
 
-        waitForElementByAndClick(
-                searchPage.getSavedPagesButton(),
-                "Cannot click button 'back'",
-                5
-        );
+        boolean listExist = false;
+        for (String title : titles) {
+            searchPage.clickSearchInput();
+            searchPage.assertInputHasText("Search Wikipedia");
+            searchPage.setTextSearchInput(title);
+            searchPage.clickByTitleInSearch(title);
+            searchPage.clickSaveButton();
 
-        waitForElementByAndClick(
-                By.xpath(listPageName),
-                "Cannot find created folder '" + titleName + "'",
-                5
-        );
+            if (!listExist) {
 
-        assertElementHasText(
-                pageTitle(titles.get(0)),
-                titles.get(0)
-        );
+                menuPage.clickAddToList();
+                menuPage.setNameOfThisList(titleName);
+                menuPage.clickOkButton();
 
-        assertElementHasText(
-                pageTitle(titles.get(1)),
-                titles.get(1)
-        );
+            } else {
 
-        swipeElementToLeft(
-                pageTitle(titles.get(0)),
-                "Cannot find saved article"
-        );
+                menuPage.clickAddToList();
+                menuPage.clickCurrentList(titleName);
+            }
+//ушли из статьи
+            searchPage.clickBackButton();
+//ушли из поиска
+            searchPage.clickBackButton();
+            searchPage.backButtonNotVisible();
+            listExist = true;
+        }
 
-        waitForElementNotPresent(
-                pageTitle(titles.get(0)),
-                "Cannot delete saved article",
-                5
-        );
+        searchPage.clickSaveButton();
 
-        assertElementHasText(
-                pageTitle(titles.get(1)),
-                titles.get(1)
-        );
+        menuPage.clickFolderInSaved(titleName);
 
-        waitForElementByAndClick(
-                pageTitle(titles.get(1)),
-                "Cannot click by saved article",
-                5
-        );
+        titles.forEach(menuPage::assertTitleByList);
 
-        waitForElementPresentBy(
-                By.xpath("//*[contains(@content-desc,'" + titles.get(1) + "')]"),
-                "Заголовок статьи appium не найден",
-                5
-        );
+        menuPage.deleteToSwipeArticle(titles.get(0));
 
+        menuPage.titleNotVisible(titles.get(0));
+
+        menuPage.assertTitleByList(titles.get(1));
+
+        menuPage.clickTitleOfArticleByList(titles.get(1));
+
+        articlePage.titleVisible(titles.get(1));
 
     }
 
     @Test
-    public void checkTitle() {
-
+    public void testCheckTitle() {
+        IntroPage introPage = new IntroPage(driver);
+        SearchPage searchPage = new SearchPage(driver);
+        ArticlePage articlePage = new ArticlePage(driver);
 
         String searchText = "Appium";
-        waitForElementByAndClick(
-                introPage.getSkipButton(),
-                "Cannot find button 'Skip'",
-                5
-        );
-        waitForElementByAndClick(
-                searchPage.getSearchInput(),
-                "Cannot find search input'",
-                5
-        );
-        assertElementHasText(
-                searchPage.getSearchInput(),
-                "Search Wikipedia"
-        );
+        introPage.clickSkipButton();
 
-        waitForElementByAndSendKeys(
-                searchPage.getSearchInput(),
-                searchText,
-                "Cannot input '" + searchText + "'",
-                5
-        );
+        searchPage.clickSearchInput();
 
-        waitForElementByAndClick(
-                By.xpath("//*[@resource-id='org.wikipedia:id/page_list_item_title'][@text='" + searchText + "']"),
-                "Click by article '" + searchText + "'",
-                5
-        );
+        searchPage.assertInputHasText("Search Wikipedia");
 
-        assertElementPresent(
-                By.xpath("//android.webkit.WebView[@content-desc='" + searchText + "']"),
-                searchText
-        );
+        searchPage.setTextSearchInput(searchText);
+        searchPage.clickByTitleInSearch(searchText);
+
+        articlePage.titleVisible(searchText);
 
         driver.rotate(ScreenOrientation.LANDSCAPE);
     }
 
-    private By pageTitle(String title) {
-        return By.xpath("//*[@resource-id='org.wikipedia:id/page_list_item_title'][@text='" + title + "']");
-    }
-
-    private void addTitleToList(List<String> titles, String titleName) {
-        boolean listExist = false;
-        for (String title : titles) {
-            waitForElementByAndClick(
-                    searchPage.getSearchInput(),
-                    "Cannot find search input'",
-                    5
-            );
-            assertElementHasText(
-                    searchPage.getSearchInput(),
-                    "Search Wikipedia"
-            );
-
-            waitForElementByAndSendKeys(
-                    searchPage.getSearchInput(),
-                    title,
-                    "Cannot input 'Java'",
-                    5
-            );
-            waitForElementByAndClick(
-                    By.xpath("//*[@resource-id='org.wikipedia:id/page_list_item_title'][@text='" + title + "']"),
-                    "Click by article '" + title + "'",
-                    5
-            );
-
-            waitForElementByAndClick(
-                    menuPage.getPageSave(),
-                    "Cannot find button 'Save'",
-                    5
-            );
-
-            if (!listExist) {
-
-                waitForElementByAndClick(
-                        menuPage.getAddToList(),
-                        "Cannot find button 'Add to List'",
-                        5
-                );
-                waitForElementByAndSendKeys(
-                        menuPage.getNameOfThisList(),
-                        titleName,
-                        "Cannot create 'Name of this list'",
-                        5
-                );
-
-                waitForElementByAndClick(
-                        menuPage.getOkButton(),
-                        "Cannot find button 'Ok'",
-                        5
-                );
-            } else {
-                waitForElementByAndClick(
-                        menuPage.getAddToList(),
-                        "Cannot find button 'Add to List'",
-                        5
-                );
-                waitForElementByAndClick(
-                        By.xpath("//*[contains(@text,'" + titleName + "')]"),
-                        "Cannot find button current list",
-                        5
-                );
-            }
-//ушли из статьи
-            waitForElementByAndClick(
-                    searchPage.getBackButton(),
-                    "Cannot click button 'back'",
-                    5
-            );
-//ушли из поиска
-            waitForElementByAndClick(
-                    searchPage.getBackButton(),
-                    "Cannot click button 'back'",
-                    5
-            );
-
-            waitForElementNotPresent(
-                    searchPage.getBackButton(),
-                    "button 'back' not present in system",
-                    5
-            );
-
-            listExist = true;
-        }
-    }
+//    private void addTitleToList(List<String> titles, String titleName) {
+//        SearchPage searchPage = new SearchPage(driver);
+//        MenuPage menuPage = new MenuPage(driver);
+//
+//        boolean listExist = false;
+//        for (String title : titles) {
+//            searchPage.clickSearchInput();
+//            searchPage.assertInputHasText("Search Wikipedia");
+//            searchPage.setTextSearchInput(title);
+//            searchPage.clickByTitleInSearch(title);
+//            searchPage.clickSavedButton();
+//
+//            if (!listExist) {
+//
+//                menuPage.clickAddToList();
+//                menuPage.setNameOfThisList(titleName);
+//                menuPage.clickOkButton();
+//
+//            } else {
+//                menuPage.clickAddToList();
+//                menuPage.clickCurrentList(titleName);
+//            }
+////ушли из статьи
+//            searchPage.clickBackButton();
+////ушли из поиска
+//            searchPage.clickBackButton();
+//            searchPage.backButtonNotVisible();
+//            listExist = true;
+//        }
+//    }
 }

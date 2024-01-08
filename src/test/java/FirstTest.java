@@ -4,59 +4,35 @@ import page.IntroPage;
 import page.SearchPage;
 
 public class FirstTest extends BaseTest {
-    private final IntroPage introPage = new IntroPage();
-    private final SearchPage searchPage = new SearchPage();
 
+    @Override
+    public void setUp() throws Exception {
+        super.setUp();
+    }
 
     @Test
-    public void secondTest() {
-        waitForElementByAndClick(
-                introPage.getSkipButton(),
-                "Cannot find button 'Skip'",
-                5
-        );
+    public void testSecond() {
+        IntroPage introPage = new IntroPage(driver);
+        SearchPage searchPage = new SearchPage(driver);
 
-        waitForElementByAndClick(
-                searchPage.getSearchInputId(),
-                "Cannot click search field",
-                5
-        );
+        introPage.clickSkipButton();
 
-        waitForElementByAndClick(
-                searchPage.getBackButton(),
-                "Cannot click button 'back'",
-                5
-        );
-
-        waitForElementNotPresent(
-                searchPage.getBackButton(),
-                "button 'back' not present in system",
-                5
-        );
+        searchPage.clickSearchInput();
+        searchPage.clickBackButton();
+        searchPage.backButtonNotVisible();
     }
 
     //    @Test
     public void testCompareArticleTitle() {
-        waitForElementByAndClick(
-                introPage.getSkipButton(),
-                "Cannot find button 'Skip'",
-                5
-        );
-        waitForElementByAndClick(
-                searchPage.getSearchInput(),
-                "Cannot find search input'",
-                5
-        );
-        waitForElementByAndSendKeys(
-                searchPage.getSearchInput(),
-                "Java",
-                "Cannot input 'Java'",
-                5
-        );
-        waitForElementByAndClick(
-                searchPage.getElementBySearchJava(),
-                "Click by article",
-                5
-        );
+        IntroPage introPage = new IntroPage(driver);
+        SearchPage searchPage = new SearchPage(driver);
+
+        String searchText = "Java";
+        String substring = "Object-oriented programming language";
+        introPage.clickSkipButton();
+
+        searchPage.clickSearchInput();
+        searchPage.setTextSearchInput(searchText);
+        searchPage.clickSearchBySubstring(substring);
     }
 }

@@ -11,14 +11,21 @@ public class IntroPage extends BasePage {
      *
      */
     public IntroPage(AppiumDriver driver) {
-        BasePage.driver = driver;
+        super(driver);
     }
-    public IntroPage(){
 
-    }
-    private final By skipButton = By.xpath("//*[contains(@text,'Skip')]");
+    private static final String SKIP_BUTTON = "//*[contains(@text,'Skip')]";
 
-    public By getSkipButton() {
-        return skipButton;
+    public void clickSkipButton(){
+        this.waitForElementPresentBy(
+                By.xpath(SKIP_BUTTON),
+                "Cannot find button 'Skip'",
+                5
+        );
+       this.waitForElementByAndClick(
+                By.xpath(SKIP_BUTTON),
+                "Cannot find button 'Skip'",
+                5
+        );
     }
 }

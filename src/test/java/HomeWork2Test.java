@@ -4,109 +4,61 @@ import page.IntroPage;
 import page.SearchPage;
 
 public class HomeWork2Test extends BaseTest {
-    private final IntroPage introPage = new IntroPage();
-    private final SearchPage searchPage = new SearchPage();
-
+    @Override
+    public void setUp() throws Exception {
+        super.setUp();
+    }
     @Test
-    public void firstTest() {
+    public void testFirst() {
+        IntroPage introPage = new IntroPage(driver);
+        SearchPage searchPage = new SearchPage(driver);
 
-        waitForElementByAndClick(
-                introPage.getSkipButton(),
-                "Cannot find button 'Skip'",
-                5
-        );
-        waitForElementByAndClick(
-                searchPage.getSearchInput(),
-                "Cannot find search input'",
-                5
-        );
-        assertElementHasText(
-                searchPage.getSearchInput(),
-                "Search Wikipedia"
-        );
-        waitForElementByAndSendKeys(
-                searchPage.getSearchInput(),
-                "Java",
-                "Cannot input 'Java'",
-                5
-        );
-        assertElementHasText(
-                searchPage.getElementBySearchJava(),
-                "Object-oriented programming language"
-        );
-        waitForElementPresentBy(
-                searchPage.getElementBySearchJava(),
-                "Cannot find 'Object-oriented programming language' topic searching by 'JAVA'",
-                15
-        );
+        String searchText = "Java";
+        String substring = "Object-oriented programming language";
+
+        introPage.clickSkipButton();
+        searchPage.clickSearchInput();
+        searchPage.assertInputHasText("Search Wikipedia");
+        searchPage.setTextSearchInput(searchText);
+
+        searchPage.assertListHasText(substring);
+
+        searchPage.clickSearchBySubstring(substring);
     }
 
     //Ex3
     @Test
-    public void cancelSearch() {
+    public void testCancelSearch() {
+        IntroPage introPage = new IntroPage(driver);
+        SearchPage searchPage = new SearchPage(driver);
+
         String searchText = "Kiss";
 
-        waitForElementByAndClick(
-                introPage.getSkipButton(),
-                "Cannot find button 'Skip'",
-                5
-        );
-        waitForElementByAndClick(
-                searchPage.getSearchInput(),
-                "Cannot find search input'",
-                5
-        );
-        assertElementHasText(
-                searchPage.getSearchInput(),
-                "Search Wikipedia"
-        );
-        waitForElementByAndSendKeys(
-                searchPage.getSearchInput(),
-                searchText,
-                "Cannot input '" + searchText + "'",
-                5
-        );
-        assertElementContainsText(
-                searchPage.getSearchResultsTitleId(),
-                searchText
-        );
-        waitForElementByAndClick(
-                searchPage.getBackButton(),
-                "Cannot click button 'back'",
-                5
-        );
-        waitForElementNotPresent(
-                searchPage.getBackButton(),
-                "button 'back' not present in system",
-                5
-        );
+        introPage.clickSkipButton();
+        searchPage.clickSearchInput();
+
+        searchPage.assertInputHasText("Search Wikipedia");
+        searchPage.setTextSearchInput(searchText);
+
+        searchPage.assertTitleHasText(searchText);
+        searchPage.clickBackButton();
+        searchPage.backButtonNotVisible();
     }
 
     //Ex4
     @Test
-    public void checkWordInSearch() {
+    public void testCheckWordInSearch() {
+        IntroPage introPage = new IntroPage(driver);
+        SearchPage searchPage = new SearchPage(driver);
+
         String searchText = "Kiss";
 
-        waitForElementByAndClick(
-                introPage.getSkipButton(),
-                "Cannot find button 'Skip'",
-                5
-        );
-        waitForElementByAndClick(
-                searchPage.getSearchInput(),
-                "Cannot find search input'",
-                5
-        );
-        assertElementHasText(
-                searchPage.getSearchInput(),
-                "Search Wikipedia"
-        );
-        waitForElementByAndSendKeys(
-                searchPage.getSearchInput(),
-                searchText,
-                "Cannot input '" + searchText + "'",
-                5
-        );
-        assertElementContainsTextSearchList(searchText);
+        introPage.clickSkipButton();
+
+        searchPage.clickSearchInput();
+        searchPage.assertInputHasText("Search Wikipedia");
+        searchPage.setTextSearchInput(searchText);
+
+        searchPage.assertListHasTitleText(searchText);
     }
 }
